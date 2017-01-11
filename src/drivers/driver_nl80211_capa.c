@@ -348,13 +348,29 @@ static void wiphy_info_ext_feature_flags(struct wiphy_info_data *info,
 					 struct nlattr *tb)
 {
 	struct wpa_driver_capa *capa = info->capa;
+	u8 *ext_features;
+	int len;
 
 	if (tb == NULL)
 		return;
 
-	if (ext_feature_isset(nla_data(tb), nla_len(tb),
-			      NL80211_EXT_FEATURE_VHT_IBSS))
+	ext_features = nla_data(tb);
+	len = nla_len(tb);
+
+	if (ext_feature_isset(ext_features, len, NL80211_EXT_FEATURE_VHT_IBSS))
 		capa->flags |= WPA_DRIVER_FLAGS_VHT_IBSS;
+
+	if (ext_feature_isset(ext_features, len,
+			      NL80211_EXT_FEATURE_BEACON_RATE_LEGACY))
+		capa->flags |= WPA_DRIVER_FLAGS_BEACON_RATE_LEGACY;
+
+	if (ext_feature_isset(ext_features, len,
+			      NL80211_EXT_FEATURE_BEACON_RATE_HT))
+		capa->flags |= WPA_DRIVER_FLAGS_BEACON_RATE_HT;
+
+	if (ext_feature_isset(ext_features, len,
+			      NL80211_EXT_FEATURE_BEACON_RATE_VHT))
+		capa->flags |= WPA_DRIVER_FLAGS_BEACON_RATE_VHT;
 }
 
 
