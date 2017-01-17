@@ -1060,7 +1060,8 @@ ssid_list_set:
 	}
 #endif /* CONFIG_P2P */
 
-	if (wpa_s->mac_addr_rand_enable & MAC_ADDR_RAND_SCAN) {
+	if ((wpa_s->mac_addr_rand_enable & MAC_ADDR_RAND_SCAN) &&
+	    wpa_s->wpa_state <= WPA_SCANNING) {
 		params.mac_addr_rand = 1;
 		if (wpa_s->mac_addr_scan) {
 			params.mac_addr = wpa_s->mac_addr_scan;
@@ -1480,7 +1481,8 @@ scan:
 
 	wpa_setband_scan_freqs(wpa_s, scan_params);
 
-	if (wpa_s->mac_addr_rand_enable & MAC_ADDR_RAND_SCHED_SCAN) {
+	if ((wpa_s->mac_addr_rand_enable & MAC_ADDR_RAND_SCHED_SCAN) &&
+	    wpa_s->wpa_state <= WPA_SCANNING) {
 		params.mac_addr_rand = 1;
 		if (wpa_s->mac_addr_sched_scan) {
 			params.mac_addr = wpa_s->mac_addr_sched_scan;
@@ -2517,7 +2519,8 @@ int wpas_start_pno(struct wpa_supplicant *wpa_s)
 		params.freqs = wpa_s->manual_sched_scan_freqs;
 	}
 
-	if (wpa_s->mac_addr_rand_enable & MAC_ADDR_RAND_PNO) {
+	if ((wpa_s->mac_addr_rand_enable & MAC_ADDR_RAND_PNO) &&
+	    wpa_s->wpa_state <= WPA_SCANNING) {
 		params.mac_addr_rand = 1;
 		if (wpa_s->mac_addr_pno) {
 			params.mac_addr = wpa_s->mac_addr_pno;
