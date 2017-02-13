@@ -156,10 +156,8 @@ void wpa_driver_nl80211_scan_timeout(void *eloop_ctx, void *timeout_ctx)
 	wpa_printf(MSG_DEBUG, "nl80211: Scan timeout - try to abort it");
 #ifdef CONFIG_DRIVER_NL80211_QCA
 	if (drv->vendor_scan_cookie &&
-	    nl80211_abort_vendor_scan(drv, drv->vendor_scan_cookie) == 0) {
-		drv->vendor_scan_cookie = 0;
+	    nl80211_abort_vendor_scan(drv, drv->vendor_scan_cookie) == 0)
 		return;
-	}
 #endif /* CONFIG_DRIVER_NL80211_QCA */
 	if (!drv->vendor_scan_cookie &&
 	    nl80211_abort_scan(drv->first_bss) == 0)
@@ -1103,6 +1101,14 @@ int wpa_driver_nl80211_vendor_scan(struct i802_bss *bss,
 		nla_nest_end(msg, rates);
 
 		if (nla_put_flag(msg, QCA_WLAN_VENDOR_ATTR_SCAN_TX_NO_CCK_RATE))
+			goto fail;
+	}
+
+	if (params->bssid) {
+		wpa_printf(MSG_DEBUG, "nl80211: Scan for a specific BSSID: "
+			   MACSTR, MAC2STR(params->bssid));
+		if (nla_put(msg, QCA_WLAN_VENDOR_ATTR_SCAN_BSSID, ETH_ALEN,
+			    params->bssid))
 			goto fail;
 	}
 
