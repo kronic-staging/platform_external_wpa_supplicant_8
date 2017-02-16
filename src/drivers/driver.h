@@ -4524,6 +4524,11 @@ union wpa_event_data {
 		 * than explicit rejection response from the AP.
 		 */
 		int timed_out;
+
+		/**
+		 * timeout_reason - Reason for the timeout
+		 */
+		const char *timeout_reason;
 	} assoc_reject;
 
 	struct timeout_event {
