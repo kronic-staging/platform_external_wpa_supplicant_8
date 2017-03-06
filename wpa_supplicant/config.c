@@ -3658,6 +3658,8 @@ struct wpa_config * wpa_config_alloc_empty(const char *ctrl_interface,
 
 #ifdef CONFIG_MBO
 	config->mbo_cell_capa = DEFAULT_MBO_CELL_CAPA;
+	config->disassoc_imminent_rssi_threshold =
+		DEFAULT_DISASSOC_IMMINENT_RSSI_THRESHOLD;
 #endif /* CONFIG_MBO */
 
 	if (ctrl_interface)
@@ -4378,6 +4380,7 @@ static const struct global_parse_data global_fields[] = {
 	{ STR(non_pref_chan), 0 },
 	{ INT_RANGE(mbo_cell_capa, MBO_CELL_CAPA_AVAILABLE,
 		    MBO_CELL_CAPA_NOT_SUPPORTED), 0 },
+	{ INT_RANGE(disassoc_imminent_rssi_threshold, -120, 0), 0 },
 #endif /*CONFIG_MBO */
 	{ INT(gas_address3), 0 },
 };
