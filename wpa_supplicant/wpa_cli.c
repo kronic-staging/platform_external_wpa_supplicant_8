@@ -680,6 +680,7 @@ static char ** wpa_cli_complete_set(const char *str, int pos)
 		"sae_groups", "dtim_period", "beacon_int",
 		"ap_vendor_elements", "ignore_old_scan_res", "freq_list",
 		"scan_cur_freq", "sched_scan_interval",
+		"sched_scan_start_delay",
 		"tdls_external_control", "osu_dir", "wowlan_triggers",
 		"p2p_search_delay", "mac_addr", "rand_addr_lifetime",
 		"preassoc_mac_addr", "key_mgmt_offload", "passive_scan",
