@@ -193,6 +193,10 @@ enum qca_radiotap_vendor_ids {
  *	in the host driver. The different TDLS configurations are defined
  *	by the attributes in enum qca_wlan_vendor_attr_tdls_configuration.
  *
+ * @QCA_NL80211_VENDOR_SUBCMD_GET_HE_CAPABILITIES: Query device IEEE 802.11ax HE
+ *	capabilities. The response uses the attributes defined in
+ *	enum qca_wlan_vendor_attr_get_he_capabilities.
+ *
  * @QCA_NL80211_VENDOR_SUBCMD_ABORT_SCAN: Abort an ongoing vendor scan that was
  *	started with QCA_NL80211_VENDOR_SUBCMD_TRIGGER_SCAN. This command
  *	carries the scan cookie of the corresponding scan request. The scan
@@ -298,7 +302,7 @@ enum qca_nl80211_vendor_subcmds {
 	QCA_NL80211_VENDOR_SUBCMD_ENCRYPTION_TEST = 137,
 	QCA_NL80211_VENDOR_SUBCMD_GET_CHAIN_RSSI = 138,
 	QCA_NL80211_VENDOR_SUBCMD_CONFIGURE_TDLS = 143,
-	/* 144 - reserved for QCA */
+	QCA_NL80211_VENDOR_SUBCMD_GET_HE_CAPABILITIES = 144,
 	QCA_NL80211_VENDOR_SUBCMD_ABORT_SCAN = 145,
 };
 
@@ -1497,6 +1501,33 @@ enum qca_wlan_vendor_tdls_trigger_mode {
 	QCA_WLAN_VENDOR_TDLS_TRIGGER_MODE_EXPLICIT = 1 << 0,
 	QCA_WLAN_VENDOR_TDLS_TRIGGER_MODE_IMPLICIT = 1 << 1,
 	QCA_WLAN_VENDOR_TDLS_TRIGGER_MODE_EXTERNAL = 1 << 2,
+};
+
+/**
+ * enum qca_wlan_vendor_attr_get_he_capabilities - IEEE 802.11ax HE capabilities
+ */
+enum qca_wlan_vendor_attr_get_he_capabilities {
+	QCA_WLAN_VENDOR_ATTR_HE_CAPABILITIES_INVALID = 0,
+	/* Whether HE capabilities is supported
+	 * (u8 attribute: 0 = not supported, 1 = supported) */
+	QCA_WLAN_VENDOR_ATTR_HE_SUPPORTED = 1,
+	/* HE PHY capabilities, array of 3 u32 values  */
+	QCA_WLAN_VENDOR_ATTR_PHY_CAPAB = 2,
+	/* HE MAC capabilities (u32 attribute) */
+	QCA_WLAN_VENDOR_ATTR_MAC_CAPAB = 3,
+	/* HE MCS map (u32 attribute) */
+	QCA_WLAN_VENDOR_ATTR_HE_MCS = 4,
+	/* Number of SS (u32 attribute) */
+	QCA_WLAN_VENDOR_ATTR_NUM_SS = 5,
+	/* RU count (u32 attribute) */
+	QCA_WLAN_VENDOR_ATTR_RU_IDX_MASK = 6,
+	/* PPE threshold data, array of 8 u32 values */
+	QCA_WLAN_VENDOR_ATTR_PPE_THRESHOLD = 7,
+
+	/* keep last */
+	QCA_WLAN_VENDOR_ATTR_HE_CAPABILITIES_AFTER_LAST,
+	QCA_WLAN_VENDOR_ATTR_HE_CAPABILITIES_MAX =
+	QCA_WLAN_VENDOR_ATTR_HE_CAPABILITIES_AFTER_LAST - 1,
 };
 
 #endif /* QCA_VENDOR_H */
