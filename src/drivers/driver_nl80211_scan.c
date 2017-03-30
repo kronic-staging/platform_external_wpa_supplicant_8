@@ -549,6 +549,11 @@ int wpa_driver_nl80211_sched_scan(void *priv,
 		nla_nest_end(msg, match_sets);
 	}
 
+	if (params->sched_scan_start_delay &&
+	    nla_put_u32(msg, NL80211_ATTR_SCHED_SCAN_DELAY,
+			params->sched_scan_start_delay))
+		goto fail;
+
 	ret = send_and_recv_msgs(drv, msg, NULL, NULL);
 
 	/* TODO: if we get an error here, we should fall back to normal scan */
