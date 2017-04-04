@@ -210,6 +210,9 @@ static void wpas_trigger_scan_cb(struct wpa_radio_work *work, int deinit)
 			/* Restore scan_req since we will try to scan again */
 			wpa_s->scan_req = wpa_s->last_scan_req;
 			wpa_supplicant_req_scan(wpa_s, 1, 0);
+		} else if (wpa_s->scan_res_handler) {
+			/* Clear the scan_res_handler */
+			wpa_s->scan_res_handler = NULL;
 		}
 		return;
 	}
@@ -1470,13 +1473,18 @@ scan:
 		params.sched_scan_plans_num = 1;
 	}
 
+	params.sched_scan_start_delay = wpa_s->conf->sched_scan_start_delay;
+
 	if (ssid || !wpa_s->first_sched_scan) {
 		wpa_dbg(wpa_s, MSG_DEBUG,
-			"Starting sched scan: interval %u timeout %d",
+			"Starting sched scan after %u seconds: interval %u timeout %d",
+			params.sched_scan_start_delay,
 			params.sched_scan_plans[0].interval,
 			wpa_s->sched_scan_timeout);
 	} else {
-		wpa_dbg(wpa_s, MSG_DEBUG, "Starting sched scan (no timeout)");
+		wpa_dbg(wpa_s, MSG_DEBUG,
+			"Starting sched scan after %u seconds (no timeout)",
+			params.sched_scan_start_delay);
 	}
 
 	wpa_setband_scan_freqs(wpa_s, scan_params);
@@ -2513,6 +2521,8 @@ int wpas_start_pno(struct wpa_supplicant *wpa_s)
 		params.sched_scan_plans = &scan_plan;
 		params.sched_scan_plans_num = 1;
 	}
+
+	params.sched_scan_start_delay = wpa_s->conf->sched_scan_start_delay;
 
 	if (params.freqs == NULL && wpa_s->manual_sched_scan_freqs) {
 		wpa_dbg(wpa_s, MSG_DEBUG, "Limit sched scan to specified channels");
