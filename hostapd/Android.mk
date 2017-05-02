@@ -269,6 +269,10 @@ ifdef CONFIG_IEEE80211AC
 L_CFLAGS += -DCONFIG_IEEE80211AC
 endif
 
+ifdef CONFIG_IEEE80211AX
+L_CFLAGS += -DCONFIG_IEEE80211AX
+endif
+
 ifdef CONFIG_MBO
 L_CFLAGS += -DCONFIG_MBO
 OBJS += src/ap/mbo_ap.c
@@ -893,6 +897,10 @@ endif
 
 ifdef CONFIG_IEEE80211AC
 OBJS += src/ap/ieee802_11_vht.c
+endif
+
+ifdef CONFIG_IEEE80211AX
+OBJS += src/ap/ieee802_11_he.c
 endif
 
 ifdef CONFIG_P2P_MANAGER
