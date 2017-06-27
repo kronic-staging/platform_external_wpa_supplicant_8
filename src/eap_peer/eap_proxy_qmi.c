@@ -680,7 +680,12 @@ void wpa_qmi_handle_ssr(qmi_client_type user_handle, qmi_client_error_type error
         wpa_printf(MSG_DEBUG, "eap_proxy: %s ", __func__);
 
         wpa_qmi_ssr = TRUE;
-        eloop_register_timeout(0, 0, wpa_qmi_register_notification, eap_proxy, NULL);
+        if (eap_proxy->qmi_ssr_in_progress) {
+                wpa_printf(MSG_DEBUG, "eap_proxy: qmi_ssr_in_progress for eap_proxy=%p Skip another.", eap_proxy);
+        } else {
+                eap_proxy->qmi_ssr_in_progress = TRUE;
+                eloop_register_timeout(0, 0, wpa_qmi_register_notification, eap_proxy, NULL);
+        }
 }
 
 static void eap_proxy_post_init(struct eap_proxy_sm *eap_proxy)
@@ -813,6 +818,7 @@ static void eap_proxy_post_init(struct eap_proxy_sm *eap_proxy)
                 return;
         }
 
+        eap_proxy->qmi_ssr_in_progress = FALSE;
         eap_proxy->proxy_state = EAP_PROXY_IDLE;
         eap_proxy_eapol_sm_set_bool(eap_proxy, EAPOL_eapSuccess, FALSE);
         eap_proxy_eapol_sm_set_bool(eap_proxy, EAPOL_eapFail, FALSE);
@@ -898,12 +904,6 @@ eap_proxy_init(void *eapol_ctx, const struct eapol_callbacks *eapol_cb,
         }
 
         eap_proxy->proxy_state = EAP_PROXY_DISABLED;
-        eap_proxy->qmi_state = QMI_STATE_IDLE;
-        eap_proxy->key = NULL;
-        eap_proxy->iskey_valid = FALSE;
-        eap_proxy->is_state_changed = FALSE;
-        eap_proxy->isEap = FALSE;
-        eap_proxy->eap_type = EAP_TYPE_NONE;
 
         /* delay the qmi client initialization after the eloop_run starts,
         * in order to avoid the case of daemonize enabled, which exits the
@@ -947,7 +947,6 @@ static void eap_proxy_qmi_deinit(struct eap_proxy_sm *eap_proxy)
                 } else {
                         wpa_printf (MSG_ERROR, "eap_proxy: session not started"
                                 " for client = %d\n", index+1);
-                        continue;
                 }
 
                 if ((TRUE == eap_proxy->qmi_uim_svc_client_initialized[index]))  {
@@ -961,13 +960,15 @@ static void eap_proxy_qmi_deinit(struct eap_proxy_sm *eap_proxy)
                         eap_proxy->qmi_uim_svc_client_initialized[index] = FALSE;
                 }
 
-                qmiRetCode = qmi_client_release(eap_proxy->qmi_auth_svc_client_ptr[index]);
-                if (QMI_NO_ERR != qmiRetCode) {
-                        wpa_printf (MSG_ERROR, "eap_proxy: Unable to Releas the connection"
-                                        " to auth service for client=%d; error_ret=%d\n;",
-                                        index+1, qmiRetCode);
-                }  else {
-                        wpa_printf(MSG_ERROR, "eap_proxy: Released QMI EAP service client\n");
+                if (NULL != eap_proxy->qmi_auth_svc_client_ptr[index]) {
+                        qmiRetCode = qmi_client_release(eap_proxy->qmi_auth_svc_client_ptr[index]);
+                        if (QMI_NO_ERR != qmiRetCode) {
+                                wpa_printf (MSG_ERROR, "eap_proxy: Unable to Releas the connection"
+                                                " to auth service for client=%d; error_ret=%d\n;",
+                                                index+1, qmiRetCode);
+                        }  else {
+                                wpa_printf(MSG_ERROR, "eap_proxy: Released QMI EAP service client\n");
+                        }
                 }
 
         }
@@ -1601,16 +1602,16 @@ eap_proxy_packet_update(struct eap_proxy_sm *eap_proxy, u8 *eapReqData,
 
 static void dump_buff(u8 *buff, int len)
 {
-        int i ;
+        wpa_printf(MSG_ERROR, "eap_proxy: ---- EAP Buffer----LEN %d",len);
 
-        wpa_printf(MSG_ERROR, "eap_proxy: ---- EAP Buffer----LEN %d\n",len);
-        for (i = 0; i < len; i++) {
-                if (0 == i%8)
-                        wpa_printf(MSG_DEBUG, " \n");
-                wpa_printf(MSG_ERROR, "eap_proxy: 0x%x  ", buff[i]);
+        while (len > 32) {
+                wpa_hexdump(MSG_DEBUG, "eap_proxy:", buff, 32);
+                buff += 32;
+                len -= 32;
         }
-        return;
+        wpa_hexdump(MSG_DEBUG, "eap_proxy: ", buff, len);
 }
+
 static char bin_to_hexchar(u8 ch)
 {
         if (ch < 0x0a) {
